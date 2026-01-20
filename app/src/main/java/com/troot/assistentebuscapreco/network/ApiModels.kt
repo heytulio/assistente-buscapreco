@@ -7,6 +7,12 @@ data class SearchRequest(
     @SerializedName("query") val query: String
 )
 
+
+data class ChatResponse(
+    @SerializedName("tipo") val tipo: String,
+    @SerializedName("mensagem") val mensagem: String,
+    @SerializedName("ofertas") val ofertas: List<ProductOffer>
+)
 // Objeto que representa um único produto na resposta da API
 data class ProductOffer(
     @SerializedName("produto") val produto: String,

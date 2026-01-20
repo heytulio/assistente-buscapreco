@@ -4,60 +4,97 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?attr/colorSurface"
     tools:context=".activities.MainActivity">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvMessages"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@+id/viewInputDivider"
+        android:clipToPadding="false"
+        android:paddingTop="16dp"
+        android:paddingBottom="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/inputLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         tools:listitem="@layout/item_message" />
 
-    <View
-        android:id="@+id/viewInputDivider"
-        android:layout_width="0dp"
-        android:layout_height="1dp"
-        android:background="@color/material_grey_300"
-        app:layout_constraintBottom_toTopOf="@+id/inputLayout"
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabTheme"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:contentDescription="Alterar tema"
+        android:visibility="gone"
+        android:alpha="0"
+        app:fabSize="mini"
+        app:srcCompat="@android:drawable/ic_menu_day"
+        app:tint="?attr/colorOnPrimary"
+        app:backgroundTint="?attr/colorPrimary"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintTop_toTopOf="parent" />
+    <View
+        android:id="@+id/fabThemeTrigger"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_margin="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/inputLayout"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:padding="8dp"
+        android:background="?attr/colorSurface"
+        android:elevation="8dp"
+        android:padding="12dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-        <EditText
-            android:id="@+id/etMessage"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/textInputLayout"
+            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
-            android:background="@android:drawable/editbox_background_normal"
             android:hint="Digite sua mensagem..."
-            android:inputType="textMultiLine"
-            android:padding="12dp"
+            app:boxCornerRadiusBottomEnd="24dp"
+            app:boxCornerRadiusBottomStart="24dp"
+            app:boxCornerRadiusTopEnd="24dp"
+            app:boxCornerRadiusTopStart="24dp"
+            app:boxStrokeColor="?attr/colorPrimary"
+            app:hintTextColor="?attr/colorOnSurfaceVariant"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/btnSend"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent">
 
-        <ImageButton
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etMessage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="sans-serif"
+                android:inputType="textCapSentences|textMultiLine"
+                android:maxLines="5"
+                android:textColor="?attr/colorOnSurface"
+                android:textSize="15sp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/btnSend"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@android:drawable/ic_menu_send"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:contentDescription="Enviar mensagem"
+            app:backgroundTint="?attr/colorPrimary"
+            app:elevation="2dp"
+            app:fabSize="normal"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent" 
-            app:tint="?attr/colorPrimary"/>
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@android:drawable/ic_menu_send"
+            app:tint="?attr/colorOnPrimary" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

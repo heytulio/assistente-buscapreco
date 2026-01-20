@@ -18,5 +18,5 @@ interface ApiService {
     @POST("buscar")
     suspend fun searchOffers(
         @Body request: SearchRequest
-    ): Response<List<ProductOffer>>
+    ): Response<ChatResponse>
 }

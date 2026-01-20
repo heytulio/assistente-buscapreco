@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Text Colors - Dark Theme (Override) -->
+    <color name="text_primary">#E5E5E7</color>
+    <color name="text_secondary">#A1A1A3</color>
+    <color name="text_on_primary">#FFFFFF</color>
+
+    <!-- Message Backgrounds - Dark Theme (Override) -->
+    <color name="assistant_message_bg">#3A3A3C</color>
+
+    <!-- Card Colors - Dark Theme (Override) -->
+    <color name="card_background">#2C2C2E</color>
+    <color name="card_stroke">#48484A</color>
+
+    <!-- Background Colors - Dark Theme (Override) -->
+    <color name="background_light">#1C1C1E</color>
+    <color name="surface_light">#2C2C2E</color>
+</resources>

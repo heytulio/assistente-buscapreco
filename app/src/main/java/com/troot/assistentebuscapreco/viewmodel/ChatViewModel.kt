@@ -16,7 +16,47 @@ class ChatViewModel : ViewModel() {
     val messages = _messages.asStateFlow()
 
     init {
-        _messages.value = listOf(Message("Olá! O que você gostaria de pesquisar hoje?", Sender.ASSISTANT))
+        // Mensagem de boas-vindas ao iniciar o chat
+        showWelcomeMessage()
+    }
+
+    private fun showWelcomeMessage() {
+        viewModelScope.launch {
+            // Mostra "Digitando..."
+            val typingMsg = Message(text = "Digitando...", sender = Sender.ASSISTANT)
+            _messages.value = listOf(typingMsg)
+
+            // Aguarda 1.5 segundos
+            kotlinx.coroutines.delay(1500)
+
+            val hour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
+            val greeting = when (hour) {
+                in 6..11 -> "Bom dia"
+                in 12..17 -> "Boa tarde"
+                else -> "Boa noite"
+            }
+
+            val welcomeMessage = Message(
+                text = """$greeting! 👋
+Sou o **Assistente Busca Preço**.
+
+Posso te ajudar a encontrar os melhores preços e te ajudar a escolher o melhor produto com uma curadoria especializada.
+
+**Como funciona:**
+* Digite o produto que você procura
+* Recebo ofertas em tempo real
+* Compare preços e economize!
+
+**Exemplos:**
+* "Ryzen 5 5500"
+* "Notebook Asus TUF Gamer"
+* "iPhone 15"
+
+O que você está procurando? 🛍️""",
+                sender = Sender.ASSISTANT
+            )
+            _messages.value = listOf(welcomeMessage)
+        }
     }
 
     fun sendMessage(query: String) {
@@ -25,41 +65,55 @@ class ChatViewModel : ViewModel() {
         val userMessage = Message(text = query, sender = Sender.USER)
         _messages.value += userMessage
 
-        val loadingMessage = Message(text = "Buscando as melhores ofertas...", sender = Sender.ASSISTANT)
+        // Adiciona indicador de digitação
+        val loadingMessage = Message(text = "Digitando...", sender = Sender.ASSISTANT)
         _messages.value += loadingMessage
 
         viewModelScope.launch {
             try {
-                val request = SearchRequest(query = query)
-                val response = RetrofitClient.apiService.searchOffers(request)
-
+                // Remove a mensagem de loading ANTES de processar
                 _messages.value = _messages.value.filterNot { it === loadingMessage }
 
-                if (response.isSuccessful && !response.body().isNullOrEmpty()) {
-                    val offers = response.body()!!
-                    
-                    val productMessages = offers.map {
+                val response = RetrofitClient.apiService.searchOffers(SearchRequest(query))
+
+                if (response.isSuccessful && response.body() != null) {
+                    val apiData = response.body()!!
+
+                    val textMsg = Message(
+                        text = apiData.mensagem,
+                        sender = Sender.ASSISTANT
+                    )
+
+                    val offerMsgs = apiData.ofertas.map { offer ->
                         Message(
                             text = "",
                             sender = Sender.ASSISTANT,
                             isProduct = true,
-                            productTitle = it.produto,
-                            price = it.preco,
-                            shop = "Vendido por: ${it.loja}",
-                            productUrl = it.link
+                            productTitle = offer.produto,
+                            price = offer.preco,
+                            shop = offer.loja,
+                            productUrl = offer.link
                         )
                     }
-                    _messages.value += productMessages
+
+                    _messages.value += (listOf(textMsg) + offerMsgs)
                 } else {
-                    val errorMessage = Message("Desculpe, não encontrei nenhuma oferta para '$query'. Tente outros termos.", Sender.ASSISTANT)
-                    _messages.value += errorMessage
+                    _messages.value += Message("Não entendi. Tente novamente.", Sender.ASSISTANT)
                 }
 
             } catch (e: Exception) {
+                // Remove loading em caso de erro também
                 _messages.value = _messages.value.filterNot { it === loadingMessage }
-                val networkError = Message("Erro de conexão. Verifique sua internet ou se a API está online.", Sender.ASSISTANT)
-                _messages.value += networkError
+
+                val errorMsg = when (e) {
+                    is java.net.UnknownHostException -> "Sem conexão com a internet 📡"
+                    is java.net.SocketTimeoutException -> "Tempo esgotado. Tente novamente ⏱️"
+                    else -> "Erro ao buscar ofertas: ${e.localizedMessage}"
+                }
+                _messages.value += Message(errorMsg, Sender.ASSISTANT)
+                e.printStackTrace()
             }
         }
     }
+
 }

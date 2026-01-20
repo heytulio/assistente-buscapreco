@@ -6,10 +6,4 @@
         android:centerColor="#4796E3"
         android:endColor="#3B7CC4"
         android:type="linear" />
-    <corners android:radius="20dp" />
-    <padding
-        android:left="16dp"
-        android:top="10dp"
-        android:right="16dp"
-        android:bottom="10dp" />
 </shape>
