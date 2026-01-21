@@ -7,6 +7,7 @@
     android:background="?attr/colorSurface"
     tools:context=".activities.MainActivity">
 
+    <!-- LISTA DE MENSAGENS -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rvMessages"
         android:layout_width="0dp"
@@ -20,6 +21,7 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:listitem="@layout/item_message" />
 
+    <!-- FAB TEMA -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabTheme"
         android:layout_width="wrap_content"
@@ -34,6 +36,25 @@
         app:backgroundTint="?attr/colorPrimary"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- FAB CONFIGURAÇÕES (aparece abaixo do tema) -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabSettings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:layout_marginTop="12dp"
+        android:contentDescription="Configurações"
+        android:visibility="gone"
+        android:alpha="0"
+        app:fabSize="mini"
+        app:srcCompat="@android:drawable/ic_menu_manage"
+        app:tint="?attr/colorOnPrimary"
+        app:backgroundTint="?attr/colorPrimary"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/fabTheme" />
+
+    <!-- ÁREA DE CLIQUE DO MENU FAB -->
     <View
         android:id="@+id/fabThemeTrigger"
         android:layout_width="60dp"
@@ -42,6 +63,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <!-- INPUT -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/inputLayout"
         android:layout_width="0dp"

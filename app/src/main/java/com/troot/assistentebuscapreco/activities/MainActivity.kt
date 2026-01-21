@@ -1,6 +1,7 @@
 package com.troot.assistentebuscapreco.activities
 
 import android.animation.ObjectAnimator
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import androidx.activity.viewModels
@@ -30,10 +31,12 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        viewModel.initialize(this)
+
         setupRecyclerView()
         setupObservers()
         setupClickListeners()
-        setupThemeToggle()
+        setupFabMenu()
         updateThemeIcon()
     }
 
@@ -70,13 +73,23 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun setupThemeToggle() {
-        binding.fabThemeTrigger?.setOnClickListener {
+    private fun setupFabMenu() {
+        // abre/fecha o menu
+        binding.fabThemeTrigger.setOnClickListener {
             toggleFabVisibility()
         }
 
-        binding.fabTheme?.setOnClickListener {
+        // botão de tema
+        binding.fabTheme.setOnClickListener {
             changeThemeWithAnimation()
+            if (isFabVisible) toggleFabVisibility()
+        }
+
+        // botão de configurações
+        binding.fabSettings.setOnClickListener {
+            startActivity(Intent(this, SettingsActivity::class.java))
+            overridePendingTransition(R.anim.fade_in, R.anim.fade_out)
+            if (isFabVisible) toggleFabVisibility()
         }
     }
 
@@ -94,9 +107,7 @@ class MainActivity : AppCompatActivity() {
                     ThemeHelper.THEME_DARK
                 }
                 ThemeHelper.setTheme(this, newTheme)
-
-                // A Activity será recriada automaticamente
-                // O fade in acontece no onCreate com overridePendingTransition
+                // O tema é aplicado via AppCompatDelegate
             }
             .start()
     }
@@ -107,19 +118,35 @@ class MainActivity : AppCompatActivity() {
                 duration = 200
                 start()
             }
-            binding.fabTheme?.postDelayed({
-                binding.fabTheme?.visibility = View.GONE
+            ObjectAnimator.ofFloat(binding.fabSettings, "alpha", 1f, 0f).apply {
+                duration = 200
+                start()
+            }
+
+            binding.fabTheme.postDelayed({
+                binding.fabTheme.visibility = View.GONE
+                binding.fabSettings.visibility = View.GONE
             }, 200)
+
             isFabVisible = false
         } else {
-            binding.fabTheme?.visibility = View.VISIBLE
+            // aparece os dois
+            binding.fabTheme.visibility = View.VISIBLE
+            binding.fabSettings.visibility = View.VISIBLE
+
             ObjectAnimator.ofFloat(binding.fabTheme, "alpha", 0f, 1f).apply {
                 duration = 200
                 start()
             }
+            ObjectAnimator.ofFloat(binding.fabSettings, "alpha", 0f, 1f).apply {
+                duration = 200
+                start()
+            }
+
             isFabVisible = true
 
-            binding.fabTheme?.postDelayed({
+            // auto-fecha depois de 3s
+            binding.fabTheme.postDelayed({
                 if (isFabVisible) {
                     toggleFabVisibility()
                 }
@@ -133,7 +160,7 @@ class MainActivity : AppCompatActivity() {
         } else {
             android.R.drawable.ic_menu_month
         }
-        binding.fabTheme?.setImageResource(iconRes)
+        binding.fabTheme.setImageResource(iconRes)
 
         // Fade in do conteúdo após recreate
         binding.root.alpha = 0f

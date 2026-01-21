@@ -1,61 +1,88 @@
 package com.troot.assistentebuscapreco.viewmodel
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.troot.assistentebuscapreco.data.local.ProfilePrefs
 import com.troot.assistentebuscapreco.model.Message
 import com.troot.assistentebuscapreco.model.Sender
 import com.troot.assistentebuscapreco.network.RetrofitClient
 import com.troot.assistentebuscapreco.network.SearchRequest
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.util.Calendar
 
 class ChatViewModel : ViewModel() {
 
     private val _messages = MutableStateFlow<List<Message>>(emptyList())
     val messages = _messages.asStateFlow()
 
-    init {
-        // Mensagem de boas-vindas ao iniciar o chat
-        showWelcomeMessage()
+    // garante que a mensagem inicial não repete
+    private var didInitWelcome = false
+
+    // Chame uma vez pela MainActivity
+    fun initialize(context: Context) {
+        if (didInitWelcome) return
+        didInitWelcome = true
+        showWelcomeMessage(context.applicationContext)
     }
 
-    private fun showWelcomeMessage() {
+    private fun showWelcomeMessage(appContext: Context) {
         viewModelScope.launch {
-            // Mostra "Digitando..."
-            val typingMsg = Message(text = "Digitando...", sender = Sender.ASSISTANT)
-            _messages.value = listOf(typingMsg)
+            val prefs = ProfilePrefs(appContext)
+            val name = prefs.userName.trim().ifBlank { "por aí" }
 
-            // Aguarda 1.5 segundos
-            kotlinx.coroutines.delay(1500)
+            val firstPreference = prefs.preferencesCsv
+                .split(",")
+                .map { it.trim() }
+                .firstOrNull { it.isNotBlank() }
 
-            val hour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
+            val hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
             val greeting = when (hour) {
                 in 6..11 -> "Bom dia"
                 in 12..17 -> "Boa tarde"
                 else -> "Boa noite"
             }
 
-            val welcomeMessage = Message(
-                text = """$greeting! 👋
+            val preferenceLine = if (!firstPreference.isNullOrBlank()) {
+                "Quer começar com ofertas de **$firstPreference**?"
+            } else {
+                "Quer começar buscando ofertas de qual produto?"
+            }
+
+            val welcomeText = """$greeting, $name! 👋  
 Sou o **Assistente Busca Preço**.
 
-Posso te ajudar a encontrar os melhores preços e te ajudar a escolher o melhor produto com uma curadoria especializada.
+Eu consigo fazer duas coisas:
 
-**Como funciona:**
-* Digite o produto que você procura
-* Recebo ofertas em tempo real
-* Compare preços e economize!
-
+**1) Buscar ofertas e preços**
+Diga o que você quer + se tiver, coloque limite de preço.
 **Exemplos:**
 * "Ryzen 5 5500"
 * "Notebook Asus TUF Gamer"
 * "iPhone 15"
 
-O que você está procurando? 🛍️""",
-                sender = Sender.ASSISTANT
+**2) Conversar sobre um produto**
+Se você quiser entender melhor antes de comprar:
+**Exemplos:**
+* "vale a pena o iPhone 15 hoje?"
+* "qual a diferença entre Ryzen 5 5500 e 5600?"
+* "esse notebook é bom pra estudar?"
+
+$preferenceLine 🛍️"""
+
+            // Mostra "Digitando..."
+            val typingMsg = Message(text = "Digitando...", sender = Sender.ASSISTANT)
+            _messages.value = listOf(typingMsg)
+
+            delay(1200)
+
+            // Substitui pelo texto final
+            _messages.value = listOf(
+                Message(text = welcomeText, sender = Sender.ASSISTANT)
             )
-            _messages.value = listOf(welcomeMessage)
         }
     }
 
@@ -115,5 +142,4 @@ O que você está procurando? 🛍️""",
             }
         }
     }
-
 }

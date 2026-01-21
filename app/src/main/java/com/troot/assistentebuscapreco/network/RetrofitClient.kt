@@ -14,7 +14,7 @@ object RetrofitClient {
     // URL base da sua API local.
     // 10.0.2.2 é o endereço especial que o emulador Android usa para se referir
     // ao localhost (127.0.0.1) da máquina hospedeira.
-    private const val BASE_URL = "http://10.0.2.2:8000/"
+    private const val BASE_URL = "http://192.168.1.7:8000/"
 
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
         // 'BODY' mostra tudo: headers, url e o JSON (request e response)

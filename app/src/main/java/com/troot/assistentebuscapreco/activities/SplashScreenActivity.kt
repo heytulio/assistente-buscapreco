@@ -9,6 +9,7 @@ import android.os.Looper
 import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
 import androidx.appcompat.app.AppCompatActivity
+import com.troot.assistentebuscapreco.data.local.ProfilePrefs
 import com.troot.assistentebuscapreco.databinding.ActivitySplashScreenBinding
 
 class SplashScreenActivity : AppCompatActivity() {
@@ -23,9 +24,17 @@ class SplashScreenActivity : AppCompatActivity() {
         // Inicia animações
         startAnimations()
 
-        // Navega para MainActivity após 3 segundos
+        // Decide para onde ir após 3 segundos
         Handler(Looper.getMainLooper()).postDelayed({
-            startActivity(Intent(this, MainActivity::class.java))
+            val prefs = ProfilePrefs(this)
+
+            val nextIntent = if (prefs.hasCompletedOnboarding) {
+                Intent(this, MainActivity::class.java)
+            } else {
+                Intent(this, OnboardingActivity::class.java)
+            }
+
+            startActivity(nextIntent)
             overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
             finish()
         }, 3000)
@@ -55,22 +64,19 @@ class SplashScreenActivity : AppCompatActivity() {
         }
 
         // Animação da tagline
-        val taglineAlpha = ObjectAnimator.ofFloat(binding.tvTagline, View.ALPHA, 0f, 1f)
-        taglineAlpha.apply {
+        val taglineAlpha = ObjectAnimator.ofFloat(binding.tvTagline, View.ALPHA, 0f, 1f).apply {
             duration = 500
             startDelay = 600
         }
 
         // Animação do progress bar
-        val progressAlpha = ObjectAnimator.ofFloat(binding.progressBar, View.ALPHA, 0f, 1f)
-        progressAlpha.apply {
+        val progressAlpha = ObjectAnimator.ofFloat(binding.progressBar, View.ALPHA, 0f, 1f).apply {
             duration = 400
             startDelay = 900
         }
 
         // Animação da versão
-        val versionAlpha = ObjectAnimator.ofFloat(binding.tvVersion, View.ALPHA, 0f, 1f)
-        versionAlpha.apply {
+        val versionAlpha = ObjectAnimator.ofFloat(binding.tvVersion, View.ALPHA, 0f, 1f).apply {
             duration = 400
             startDelay = 1000
         }
